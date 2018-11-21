@@ -74,7 +74,7 @@ int produce(int id) {
 int consume(int id, int number) {
 	double squareRoot = sqrt(number);
 	if (squareRoot == (int) squareRoot) {
-		printf(" %d %d %d", id, number, squareRoot)
+		printf(" %d %d %d", id, number, squareRoot);
 	}
 }
 
