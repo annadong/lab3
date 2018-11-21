@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
 
 	for (k = 0; k < num_p + num_c; k++) {
 		pthread_join(threads[k], NULL);
+
 	}
 
 	sem_destroy(&spaces);
@@ -110,6 +111,7 @@ int main(int argc, char *argv[])
     printf("System execution time: %.6lf seconds\n", \
             g_time[1] - g_time[0]);
 
+    pthread_exit(0);
 	exit(0);
 }
 
