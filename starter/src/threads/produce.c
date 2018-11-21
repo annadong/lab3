@@ -29,6 +29,54 @@ pthread_mutex_t mutex;
 int pindex = 0;
 int cindex = 0;
 
+void* producer (void *arg) {
+	int *id = (int *) arg;
+	while (1) {
+		int num = produce(*id);
+		sem_wait(&spaces);
+		pthread_mutex_lock(&mutex);
+		*buffer[pindex] = num;
+		pindex = (pindex + 1) % bufferSize;
+		pthread_mutex_unlock(&mutex);
+		sem_post(&items);
+	}
+	free(arg);
+	pthread_exit(NULL);
+}
+
+void* consumer(void *arg) {
+	int *id = (int *) arg;
+	while (1) {
+		sem_wait(&items);
+		pthread_mutex_lock(&mutex);
+		int num = buffer[cindex];
+		*buffer[cindex] = -1;
+		cindex = (cindex + 1) % bufferSize;
+		pthread_mutex_unlock(&mutex);
+		sem_post(&spaces);
+		consume(*id, num);
+	}
+	free(arg);
+	pthread_exit(NULL);
+}
+
+int produce(int id) {
+	int num = lastProduced[id];
+	if (num == 0) {
+		lastProduced[id] = id;
+	} else {
+		lastProduced[id] = lastProduced[id] + producerSize;
+	}
+	return lastProduced[id];
+}
+
+int consume(int id, int number) {
+	double squareRoot = sqrt(number);
+	if (squareRoot == (int) squareRoot) {
+		printf(" %d %d %d", id, number, squareRoot)
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	int num;
@@ -106,50 +154,3 @@ int main(int argc, char *argv[])
 	exit(0);
 }
 
-void* producer (void *arg) {
-	int *id = (int *) arg;
-	while (1) {
-		int num = produce(*id);
-		sem_wait(&spaces);
-		pthread_mutex_lock(&mutex);
-		*buffer[pindex] = num;
-		pindex = (pindex + 1) % bufferSize;
-		pthread_mutex_unlock(&mutex);
-		sem_post(&items);
-	}
-	free(arg);
-	pthread_exit(NULL);
-}
-
-void* consumer(void *arg) {
-	int *id = (int *) arg;
-	while (1) {
-		sem_wait(&items);
-		pthread_mutex_lock(&mutex);
-		int num = buffer[cindex];
-		*buffer[cindex] = -1;
-		cindex = (cindex + 1) % bufferSize;
-		pthread_mutex_unlock(&mutex);
-		sem_post(&spaces);
-		consume(*id, num);
-	}
-	free(arg);
-	pthread_exit(NULL);
-}
-
-int produce(int id) {
-	int num = lastProduced[id];
-	if (num == 0) {
-		lastProduced[id] = id;
-	} else {
-		lastProduced[id] = lastProduced[id] + producerSize;
-	}
-	return lastProduced[id];
-}
-
-int consume(int id, int number) {
-	double squareRoot = sqrt(number);
-	if (squareRoot == (int) squareRoot) {
-		printf(" %d %d %d", id, number, squareRoot)
-	}
-}
