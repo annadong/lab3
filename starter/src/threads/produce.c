@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <math.h>
+#include <semaphore.h>
+#include <pthread.h>
 
 double g_time[2];
 
