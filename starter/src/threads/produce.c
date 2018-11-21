@@ -142,9 +142,9 @@ void* consumer(void *arg) {
 
 		pthread_mutex_unlock(&mutex);
 		sem_post(&spaces);
-		squareRoot = sqrt(number);
+		squareRoot = sqrt(num);
 		if (squareRoot == (int) squareRoot) {
-			printf(" %d %d %d \n", id, number, (int) squareRoot);
+			printf(" %d %d %d \n", *id, num, (int) squareRoot);
 		}
 	}
 
