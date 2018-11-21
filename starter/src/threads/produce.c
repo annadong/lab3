@@ -142,7 +142,7 @@ void* consumer(void *arg) {
 		num = buffer[cindex%bufferSize];
 		cindex ++;
 
-		if (cindex > numberOfItemToProduce-1) {
+		if (cindex >= numberOfItemToProduce-1) {
 			break;
 		}
 
