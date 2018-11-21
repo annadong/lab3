@@ -78,13 +78,19 @@ int main(int argc, char *argv[])
 	for (i = 0; i < num_p; i++) {
 		int* id = malloc(sizeof(int));
 		*id = i;
-		pthread_create(&threads[i], NULL, producer, id);
+		int status = pthread_create(&threads[i], NULL, producer, id);
+		if (status != 0) {
+			printf("failed to produce producer");
+		}
 	}
 
 	for (j = num_p; j < num_p+num_c; j++) {
 		int* jd = malloc(sizeof(int));
 		*jd = j-num_p;
-		pthread_create(&threads[j], NULL, consumer, jd);
+		int status = pthread_create(&threads[j], NULL, consumer, jd);
+		if (status != 0) {
+			printf("failed to produce consumer");
+		}
 	}
 
 	for (k = 0; k < num_p + num_c; k++) {
