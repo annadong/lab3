@@ -73,30 +73,28 @@ int main(int argc, char *argv[])
 	gettimeofday(&tv, NULL);
 	g_time[0] = (tv.tv_sec) + tv.tv_usec/1000000.;
 
-	pthread_t threads[num_p+num_c];
+	pthread_t producers[num_p];
+	pthread_t consumers[num_c];
 
 	for (i = 0; i < num_p; i++) {
 		int* id = malloc(sizeof(int));
 		*id = i;
-		int status = pthread_create(&threads[i], NULL, producer, id);
-		if (status != 0) {
-			printf("failed to produce producer");
-		}
+		pthread_create(&producers[i], NULL, producer, id);
 	}
 
-	for (j = num_p; j < num_p+num_c; j++) {
+	for (j =0; j < num_c; j++) {
 		int* jd = malloc(sizeof(int));
-		*jd = j-num_p;
-		int status = pthread_create(&threads[j], NULL, consumer, jd);
-		if (status != 0) {
-			printf("failed to produce consumer");
-		}
+		*jd = j;
+		pthread_create(&consumers[j], NULL, consumer, jd);
 	}
 
-	for (k = 0; k < num_p + num_c; k++) {
-		pthread_join(threads[k], NULL);
-
+	for (k = 0; k < num_p; k++) {
+		pthread_join(producers[k], NULL);
 	}
+	for (k = 0; k < num_c; k++) {
+		pthread_join(consumers[k], NULL);
+	}
+	pthread_exit(0);
 
 	sem_destroy(&spaces);
 	sem_destroy(&items);
@@ -104,14 +102,13 @@ int main(int argc, char *argv[])
 
 	free(buffer);
 
-
+	
     gettimeofday(&tv, NULL);
     g_time[1] = (tv.tv_sec) + tv.tv_usec/1000000.;
 
     printf("System execution time: %.6lf seconds\n", \
             g_time[1] - g_time[0]);
 
-    pthread_exit(0);
 	exit(0);
 }
 
