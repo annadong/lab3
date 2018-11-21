@@ -30,58 +30,9 @@ pthread_mutex_t mutex;
 int pindex = 0;
 int cindex = 0;
 
-
-int consume(int id, int number) {
-	double squareRoot = sqrt(number);
-	if (squareRoot == (int) squareRoot) {
-		printf(" %d %d %d \n", id, number, squareRoot);
-	}
-}
-
-void* producer (void *arg) {
-	int *id = (int *) arg;
-	int i;
-
-	for (i=0; i < numberOfItemToProduce; i ++) {
-		if (i%producerSize == *id) {
-			sem_wait(&spaces);
-			pthread_mutex_lock(&mutex);
-			buffer[pindex%bufferSize] = i;
-			pindex ++;
-			pthread_mutex_unlock(&mutex);
-			sem_post(&items);
-		}
-	}
-	free(arg);
-	pthread_exit(NULL);
-}
-
-void* consumer(void *arg) {
-	int *id = (int *) arg;
-	int num;
-	while (1) {
-		sem_wait(&items);
-		pthread_mutex_lock(&mutex);
-		num = buffer[cindex%bufferSize];
-		cindex ++;
-
-		if (cindex > numberOfItemToProduce-1) {
-			break;
-		}
-
-		pthread_mutex_unlock(&mutex);
-		sem_post(&spaces);
-		consume(*id, num);
-	}
-
-	sem_post(&spaces);
-	sem_post(&items);
-	pthread_mutex_unlock(&mutex);
-
-	free(arg);
-	pthread_exit(NULL);
-}
-
+void consume(int id, int number);
+void *producer(void* arg);
+void* consumer(void *arg);
 
 int main(int argc, char *argv[])
 {
@@ -161,5 +112,56 @@ int main(int argc, char *argv[])
             g_time[1] - g_time[0]);
 
 	exit(0);
+}
+
+void consume(int id, int number) {
+	double squareRoot = sqrt(number);
+	if (squareRoot == (int) squareRoot) {
+		printf(" %d %d %d \n", id, number, squareRoot);
+	}
+}
+
+void* producer (void *arg) {
+	int *id = (int *) arg;
+	int i;
+
+	for (i=0; i < numberOfItemToProduce; i ++) {
+		if (i%producerSize == *id) {
+			sem_wait(&spaces);
+			pthread_mutex_lock(&mutex);
+			buffer[pindex%bufferSize] = i;
+			pindex ++;
+			pthread_mutex_unlock(&mutex);
+			sem_post(&items);
+		}
+	}
+	free(arg);
+	pthread_exit(NULL);
+}
+
+void* consumer(void *arg) {
+	int *id = (int *) arg;
+	int num;
+	while (1) {
+		sem_wait(&items);
+		pthread_mutex_lock(&mutex);
+		num = buffer[cindex%bufferSize];
+		cindex ++;
+
+		if (cindex > numberOfItemToProduce-1) {
+			break;
+		}
+
+		pthread_mutex_unlock(&mutex);
+		sem_post(&spaces);
+		consume(*id, num);
+	}
+
+	sem_post(&spaces);
+	sem_post(&items);
+	pthread_mutex_unlock(&mutex);
+
+	free(arg);
+	pthread_exit(NULL);
 }
 
