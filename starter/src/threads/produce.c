@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 
 	sem_destroy(&spaces);
 	sem_destroy(&items);
-	pthread_mutex_destory(&mutex);
+	pthread_mutex_destroy(&mutex);
 
 
     gettimeofday(&tv, NULL);
