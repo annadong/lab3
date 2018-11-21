@@ -31,11 +31,12 @@ int cindex = 0;
 
 void* producer (void *arg) {
 	int *id = (int *) arg;
+	int num;
 	while (1) {
-		int num = produce(*id);
+		num = produce(*id);
 		sem_wait(&spaces);
 		pthread_mutex_lock(&mutex);
-		*buffer[pindex] = num;
+		buffer[pindex] = num;
 		pindex = (pindex + 1) % bufferSize;
 		pthread_mutex_unlock(&mutex);
 		sem_post(&items);
@@ -50,7 +51,7 @@ void* consumer(void *arg) {
 		sem_wait(&items);
 		pthread_mutex_lock(&mutex);
 		int num = buffer[cindex];
-		*buffer[cindex] = -1;
+		buffer[cindex] = -1;
 		cindex = (cindex + 1) % bufferSize;
 		pthread_mutex_unlock(&mutex);
 		sem_post(&spaces);
