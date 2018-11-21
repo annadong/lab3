@@ -38,6 +38,10 @@ int main(int argc, char *argv[])
 	//int i;
 	struct timeval tv;
 
+	int i;
+	int j;
+	int k;
+
 	sem_t spaces;
 	sem_t items;
 
@@ -59,7 +63,7 @@ int main(int argc, char *argv[])
 	buffer = malloc(maxmsg*sizeof(int));
 	lastProduced = malloc(num_p*sizeof(int));
 
-	for (int i = 0; i < producerSize; i ++) {
+	for (i = 0; i < producerSize; i ++) {
 		lastProduced[i] = 0;
 	}
 
@@ -72,19 +76,19 @@ int main(int argc, char *argv[])
 
 	pthread_t threads[num_p+num_c];
 
-	for (int i = 0; i < num_p; i++) {
+	for (i = 0; i < num_p; i++) {
 		int* id = malloc(sizeof(int));
 		*id = i;
 		pthread_create(&threads[i], NULL, producer, id);
 	}
 
-	for (int j = num_p; j < num_p+num_c; j++) {
+	for (j = num_p; j < num_p+num_c; j++) {
 		int* jd = malloc(sizeof(int));
 		*jd = j-num_p;
 		pthread_create(&threads[j], NULL, consumer, jd);
 	}
 
-	for (int k = 0; k < num_p + num_c; k++) {
+	for (k = 0; k < num_p + num_c; k++) {
 		pthread_join(threads[k], NULL);
 	}
 
