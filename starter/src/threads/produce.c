@@ -29,7 +29,6 @@ pthread_mutex_t mutex;
 int pindex = 0;
 int cindex = 0;
 
-void consume(int id, int number);
 void *producer(void* arg);
 void* consumer(void *arg);
 
@@ -108,12 +107,6 @@ int main(int argc, char *argv[])
 	exit(0);
 }
 
-void consume(int id, int number) {
-	double squareRoot = sqrt(number);
-	if (squareRoot == (int) squareRoot) {
-		printf(" %d %d %d \n", id, number, squareRoot);
-	}
-}
 
 void* producer (void *arg) {
 	int *id = (int *) arg;
@@ -136,6 +129,7 @@ void* producer (void *arg) {
 void* consumer(void *arg) {
 	int *id = (int *) arg;
 	int num;
+	double squareRoot;
 	while (1) {
 		sem_wait(&items);
 		pthread_mutex_lock(&mutex);
@@ -148,7 +142,10 @@ void* consumer(void *arg) {
 
 		pthread_mutex_unlock(&mutex);
 		sem_post(&spaces);
-		consume(*id, num);
+		squareRoot = sqrt(number);
+		if (squareRoot == (int) squareRoot) {
+			printf(" %d %d %d \n", id, number, (int) squareRoot);
+		}
 	}
 
 	sem_post(&spaces);
