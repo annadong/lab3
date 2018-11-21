@@ -23,23 +23,34 @@ int *buffer;
 int *lastProduced;
 int producerSize;
 int bufferSize;
+int numberOfItemToProduce;
 sem_t spaces;
 sem_t items;
 pthread_mutex_t mutex;
 int pindex = 0;
 int cindex = 0;
 
+
+int consume(int id, int number) {
+	double squareRoot = sqrt(number);
+	if (squareRoot == (int) squareRoot) {
+		printf(" %d %d %d \n", id, number, squareRoot);
+	}
+}
+
 void* producer (void *arg) {
 	int *id = (int *) arg;
-	int num;
-	while (1) {
-		num = produce(*id);
-		sem_wait(&spaces);
-		pthread_mutex_lock(&mutex);
-		buffer[pindex] = num;
-		pindex = (pindex + 1) % bufferSize;
-		pthread_mutex_unlock(&mutex);
-		sem_post(&items);
+	int i;
+
+	for (i=0; i < numberOfItemToProduce; i ++) {
+		if (i%producerSize == *id) {
+			sem_wait(&spaces);
+			pthread_mutex_lock(&mutex);
+			buffer[pindex%bufferSize] = i;
+			pindex ++;
+			pthread_mutex_unlock(&mutex);
+			sem_post(&items);
+		}
 	}
 	free(arg);
 	pthread_exit(NULL);
@@ -47,36 +58,30 @@ void* producer (void *arg) {
 
 void* consumer(void *arg) {
 	int *id = (int *) arg;
+	int num;
 	while (1) {
 		sem_wait(&items);
 		pthread_mutex_lock(&mutex);
-		int num = buffer[cindex];
-		buffer[cindex] = -1;
-		cindex = (cindex + 1) % bufferSize;
+		num = buffer[cindex%bufferSize];
+		cindex ++;
+
+		if (cindex > numberOfItemToProduce-1) {
+			break;
+		}
+
 		pthread_mutex_unlock(&mutex);
 		sem_post(&spaces);
 		consume(*id, num);
 	}
+
+	sem_post(&spaces);
+	sem_post(&items);
+	pthread_mutex_unlock(&mutex);
+
 	free(arg);
 	pthread_exit(NULL);
 }
 
-int produce(int id) {
-	int num = lastProduced[id];
-	if (num == 0) {
-		lastProduced[id] = id;
-	} else {
-		lastProduced[id] = lastProduced[id] + producerSize;
-	}
-	return lastProduced[id];
-}
-
-int consume(int id, int number) {
-	double squareRoot = sqrt(number);
-	if (squareRoot == (int) squareRoot) {
-		printf(" %d %d %d", id, number, squareRoot);
-	}
-}
 
 int main(int argc, char *argv[])
 {
@@ -108,6 +113,7 @@ int main(int argc, char *argv[])
 
 	producerSize = num_p;
 	bufferSize = maxmsg;
+	numberOfItemToProduce = num;
 
 	buffer = malloc(maxmsg*sizeof(int));
 	lastProduced = malloc(num_p*sizeof(int));
@@ -145,13 +151,15 @@ int main(int argc, char *argv[])
 	sem_destroy(&items);
 	pthread_mutex_destroy(&mutex);
 
+	free(buffer);
+
 
     gettimeofday(&tv, NULL);
     g_time[1] = (tv.tv_sec) + tv.tv_usec/1000000.;
 
     printf("System execution time: %.6lf seconds\n", \
             g_time[1] - g_time[0]);
-	pthread_exit(0);
+
 	exit(0);
 }
 
