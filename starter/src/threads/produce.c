@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
 	int j;
 	int k;
 
-	sem_t spaces;
-	sem_t items;
+//	sem_t spaces;
+//	sem_t items;
 
 
 	if (argc != 5) {
