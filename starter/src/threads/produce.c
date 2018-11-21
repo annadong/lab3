@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 	int maxmsg;
 	int num_p;
 	int num_c;
-	int i;
+	//int i;
 	struct timeval tv;
 
 	sem_t spaces;
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 	lastProduced = malloc(num_p*sizeof(int));
 
 	for (int i = 0; i < producerSize; i ++) {
-		lastProducer[i] = 0;
+		lastProduced[i] = 0;
 	}
 
 	sem_init(&spaces, 0, maxmsg);
