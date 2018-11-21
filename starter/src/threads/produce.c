@@ -20,7 +20,6 @@ double g_time[2];
 
 
 int *buffer;
-int *lastProduced;
 int producerSize;
 int bufferSize;
 int numberOfItemToProduce;
@@ -67,11 +66,6 @@ int main(int argc, char *argv[])
 	numberOfItemToProduce = num;
 
 	buffer = malloc(maxmsg*sizeof(int));
-	lastProduced = malloc(num_p*sizeof(int));
-
-	for (i = 0; i < producerSize; i ++) {
-		lastProduced[i] = 0;
-	}
 
 	sem_init(&spaces, 0, maxmsg);
 	sem_init(&items, 0, 0);
